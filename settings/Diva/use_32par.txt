@@ -1,0 +1,8 @@
+ENV1_Atk
+ENV1_Dec
+ENV1_Sus
+ENV1_Rel
+ENV2_Atk
+ENV2_Dec
+ENV2_Sus
+ENV2_Rel
