@@ -1,7 +1,6 @@
 #%%
 from __future__ import division
 import os, struct
-from parameter import Preset
 from synth_data import preset_info, dexed_midi_only
 
 #https://github.com/asb2m10/dexed/blob/73a266dd70e58e7def14a52bf2a53b5486d083dc/Documentation/sysex-format.txt
@@ -59,23 +58,6 @@ def read_patch(bankname, patch_num, patchData): # reads 128 byte patch data
     voiceData = bankname+"_" + str(patch_num).zfill(2) + "_" +"".join(chr(i) for i in data[118:128]) # name of bank+patch no. in bank + name of patch
     return patch, voiceData
 
-def read_syx_dump(filename, init_conf=None):
-    size = os.path.getsize(filename)
-    if size not in [4104, 4096]:
-        return []
-    with open(filename, "rb") as f:
-        presets = []
-        if size == 4104:
-            f.seek(6)
-        bankname, _ = os.path.splitext(filename)      
-        for patch_num in range(32):
-            patchData = f.read(128)
-            patch, voicedata = read_patch(bankname, patch_num, patchData)
-            if patch is None:
-                break
-            preset = Preset(plug_name="Dexed", name = voicedata, params_data=patch, init_conf=init_conf, path=filename)
-            presets.append(preset)
-    return presets
 
 if __name__ == "__main__":
     p = read_syx_dump("test/CJSP5.SYX")

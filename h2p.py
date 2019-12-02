@@ -1,6 +1,5 @@
 from __future__ import division
 import codecs, os, traceback
-from parameter import Preset
 from utils import is_number
 """
     Utilities for reading parameters and metadata from h2p (u-he synths preset format)
