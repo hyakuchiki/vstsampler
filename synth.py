@@ -31,7 +31,7 @@ class Synth():
         self.engine.render_patch(pitch, 0, 0.5, 1.0, True) # render a really quiet sound to remove blip
         self.engine.render_patch(pitch, velocity, note_length, render_length, True)
         audio = np.array(self.engine.get_audio_frames())
-        # return resample(audio, self.sample_rate, output_rate)
+        return resample(audio, self.sample_rate, output_rate)
         return audio
 
     def preset_to_midicc(self, preset):
@@ -40,12 +40,15 @@ class Synth():
             also sets midi_params dictionary with cc names as key
         """
         self.preset = preset
+        self.oor = 0 #no. of out of range params
         midi_params = {}
         pd = self.preset_desc
-        midi_params.update(midi_only[self.synth_name]) 
+        midi_params.update(midi_only[self.synth_name])
         for p_name, v in preset.params.items():
             if pd[p_name]["MIDI"]:
-                midi_params[pd[p_name]["MIDI"]] = value2midi(v, pd[p_name]["type"], pd[p_name]["range"], p_name)
+                midi_params[pd[p_name]["MIDI"]], oor = value2midi(v, pd[p_name]["type"], pd[p_name]["range"], p_name)
+            if oor:
+                self.oor +=1
         self.midi_params = midi_params
         self.midi_cc = [(self.midi_idx[pn], v) for pn, v in self.midi_params.items()]
 
@@ -61,20 +64,22 @@ def value2midi(value, param_type, param_range, name=None):
     ----------
     v: MIDI CC value (0.0-1.0)
     """
+    oor = False
     if param_type == "c": # continuous
         min_v, max_v = param_range
         v = (value - min_v) / (max_v - min_v)
         if value < min_v or value > max_v:
             tqdm.write("{0}: {1} not in {2}".format(name, value, param_range))
+            oor = True
     elif param_type == "d": #categorical/discrete
         if value not in param_range:
             tqdm.write("{0}: {1} not in {2}".format(name, value, param_range))
             v = param_range[0] if value < param_range[0] else param_range[-1]
+            oor = True
         else:
             v = param_range.index(value) / (len(param_range) - 1)
     else: # ?
         v = 0.0
     if v < 0 or v > 1:
         v = min(1, max(0, v))
-
-    return v
+    return v, oor

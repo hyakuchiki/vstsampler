@@ -57,8 +57,3 @@ def read_patch(bankname, patch_num, patchData): # reads 128 byte patch data
     patch["MIDDLE C"] = data[117]
     voiceData = bankname+"_" + str(patch_num).zfill(2) + "_" +"".join(chr(i) for i in data[118:128]) # name of bank+patch no. in bank + name of patch
     return patch, voiceData
-
-
-if __name__ == "__main__":
-    p = read_syx_dump("test/CJSP5.SYX")
-    print(p)

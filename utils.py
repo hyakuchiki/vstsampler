@@ -11,9 +11,10 @@ def is_number(s):
 
 def get_files_ext(top_dir, extension):
     presets_dirs = []
+
     for root, _, files in os.walk(top_dir):
         for filename in files:
-            if filename.lower().endswith(extension):
+            if filename.lower().endswith(extension.lower()):
                 presets_dirs.append(os.path.join(root,filename))
     return presets_dirs
 
