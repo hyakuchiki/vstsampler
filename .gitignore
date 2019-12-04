@@ -4,3 +4,4 @@
 librenderman.so
 /test/
 *.ipynb
+.DS_Store

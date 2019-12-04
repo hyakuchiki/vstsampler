@@ -7,7 +7,6 @@ class Synth():
     synth = None
     preset = None
     midi_params = {}
-    midi_cc = None
 
     def __init__(self, synth_name):
         if synth_name in midi_indices.keys():
@@ -27,17 +26,21 @@ class Synth():
         self.sample_rate = sample_rate
 
     def play_note(self, pitch, velocity, note_length=3.8, render_length=4.0, output_rate=22050):
-        self.engine.set_patch(self.midi_cc)
+        """
+        makes midi-cc ex.) [(0,0.3), (1,0.8),...] for renderman to use
+        and plays a midi note
+        """
+        midi_cc = [(self.midi_idx[pn], v) for pn, v in self.midi_params.items()]
+        self.engine.set_patch(midi_cc)
         self.engine.render_patch(pitch, 0, 0.5, 1.0, True) # render a really quiet sound to remove blip
         self.engine.render_patch(pitch, velocity, note_length, render_length, True)
         audio = np.array(self.engine.get_audio_frames())
         return resample(audio, self.sample_rate, output_rate)
-        return audio
 
-    def preset_to_midicc(self, preset):
+    def preset_to_midi(self, preset):
         """
-            Loads preset object and sets midi-cc ex.) [(0,0.3), (1,0.8),...]
-            also sets midi_params dictionary with cc names as key
+            Loads preset object
+            sets midi_params dictionary with cc names as key
         """
         self.preset = preset
         self.oor = 0 #no. of out of range params
@@ -50,7 +53,6 @@ class Synth():
             if oor:
                 self.oor +=1
         self.midi_params = midi_params
-        self.midi_cc = [(self.midi_idx[pn], v) for pn, v in self.midi_params.items()]
 
 def value2midi(value, param_type, param_range, name=None):
     """

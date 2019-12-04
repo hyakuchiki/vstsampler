@@ -47,14 +47,15 @@ for pf in tqdm(preset_files):
             continue
         
         fixed_preset = fixer.fix_preset(preset)
-        dexed.preset_to_midicc(fixed_preset)
+        dexed.preset_to_midi(fixed_preset)
         if dexed.oor > 2: # skip if there are too many out of range parameters
             continue
-        
+
         preset_count += 1
         for pitch in args.p:
             for velocity in args.v:
                 audio = dexed.play_note(pitch, velocity, 3.0, 4.0, output_rate=22050)
                 out_name = preset.hash + "_" + str(pitch) + "_" + str(velocity)
-                np.savez_compressed(os.path.join(output_dir, out_name) + ".npz", params=preset.params, audio=audio)
+                np.savez_compressed(os.path.join(output_dir, out_name) + ".npz", param=dexed.midi_params, audio=audio)
+
 print("loaded {0} presets".format(preset_count))
