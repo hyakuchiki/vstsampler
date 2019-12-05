@@ -17,12 +17,12 @@ class Synth():
         self.preset_desc = preset_info[synth_name]
         self.midi_idx = midi_indices[synth_name]
 
-    def load_synth(self, synth_dir, init_fxp=None, sample_rate=44100, buffer_size=512, fft_size=512):
+    def load_synth(self, synth_dir, init_fxb=None, sample_rate=44100, buffer_size=512, fft_size=512):
         import librenderman as rm
         self.engine = rm.RenderEngine(sample_rate, buffer_size, fft_size)
         self.engine.load_plugin(synth_dir)
-        if init_fxp:
-            self.engine.load_preset(init_fxp)
+        if init_fxb:
+            self.engine.load_preset(init_fxb)
         self.sample_rate = sample_rate
 
     def play_note(self, pitch, velocity, note_length=3.8, render_length=4.0, output_rate=22050):
@@ -32,7 +32,7 @@ class Synth():
         """
         midi_cc = [(self.midi_idx[pn], v) for pn, v in self.midi_params.items()]
         self.engine.set_patch(midi_cc)
-        self.engine.render_patch(pitch, 0, 0.5, 1.0, True) # render a really quiet sound to remove blip
+        # self.engine.render_patch(pitch, 0, 0.5, 1.0, True) # render a really quiet sound to remove blip
         self.engine.render_patch(pitch, velocity, note_length, render_length, True)
         audio = np.array(self.engine.get_audio_frames())
         return resample(audio, self.sample_rate, output_rate)

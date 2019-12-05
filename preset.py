@@ -16,7 +16,7 @@ class Preset():
         self.preset_name = preset_name
         self.preset_path = preset_path
         self.synth_name = synth_name
-        self.params = params
+        self.params = params #dictionary of parameters in original preset format not MIDI
         self.hash = hashlib.md5(str(sorted(self.params.items(), key=lambda x: x[0])).encode("UTF-8")).hexdigest()
         self.meta = meta #Metadata object?
             
