@@ -1,7 +1,7 @@
 #%%
 from __future__ import division
 import os, struct
-from synth_data import preset_info, dexed_midi_only
+from data.synth_data import preset_info, dexed_midi_only
 
 #https://github.com/asb2m10/dexed/blob/73a266dd70e58e7def14a52bf2a53b5486d083dc/Documentation/sysex-format.txt
 

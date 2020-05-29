@@ -1,6 +1,6 @@
 from __future__ import division
 import codecs, os, traceback
-from utils import is_number
+from util import is_number
 """
     Utilities for reading parameters and metadata from h2p (u-he synths preset format)
 """
@@ -66,7 +66,7 @@ def get_h2p_meta(file):
     return metad
 
 def read_h2p_file(filename, plug_name, init_conf=None):
-    with codecs.open(filename) as f:
+    with codecs.open(filename, encoding="ISO-8859-1") as f:
         try:
             params = get_h2p_params(f, plug_name)
             f.seek(0)

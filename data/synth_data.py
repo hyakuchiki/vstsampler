@@ -1,16 +1,17 @@
 from __future__ import division
 import os, csv, ast, codecs
-from utils import is_number
+from util import is_number
 import re
 
 """
 This is a mess
 
 """
-
+script_dir = os.path.dirname(__file__)
+data_dir = os.path.join(script_dir, "data")
 def get_divah2p_info():
     diva_param_infos={}
-    with codecs.open("data/divaparam.csv", encoding='utf-8-sig') as f:
+    with codecs.open(os.path.join(data_dir,"divaparam.csv"), encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
         for row in reader:
             param_info = {}
@@ -84,8 +85,3 @@ midi_indices = {"Diva": diva_midi_idx, "Dexed": dexed_midi_idx}
 midi_only = {"Dexed": dexed_midi_only, "Diva": diva_midi_only}
 
 preset_ext = {"Dexed": ".syx", "Diva": ".h2p"}
-
-init_files = {"Diva": {"no_mod": "settings/Diva/diva_no_mod.json", 
-    "default_mod32": "settings/Diva/diva_32par.json"},
-    "Dexed": {"default": "settings/Dexed/default.json"}}
-

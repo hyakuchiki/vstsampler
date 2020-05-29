@@ -1,13 +1,15 @@
 from __future__ import division
 from tqdm import tqdm
 import numpy as np
-from utils import resample
-from synth_data import midi_indices, preset_info, midi_only
+from util import resample
+from data.synth_data import midi_indices, preset_info, midi_only
+import random
+
 class Synth():
     synth = None
     preset = None
     midi_params = {}
-
+    
     def __init__(self, synth_name):
         if synth_name in midi_indices.keys():
             self.synth_name = synth_name
@@ -36,7 +38,7 @@ class Synth():
         self.engine.render_patch(pitch, velocity, note_length, render_length, True)
         audio = np.array(self.engine.get_audio_frames())
         return resample(audio, self.sample_rate, output_rate)
-
+    
     def preset_to_midi(self, preset):
         """
             Loads preset object
@@ -46,12 +48,39 @@ class Synth():
         self.oor = 0 #no. of out of range params
         midi_params = {}
         pd = self.preset_desc
+        self.one_hots = {}
         midi_params.update(midi_only[self.synth_name])
         for p_name, v in preset.params.items():
-            if pd[p_name]["MIDI"]:
-                midi_params[pd[p_name]["MIDI"]], oor = value2midi(v, pd[p_name]["type"], pd[p_name]["range"], p_name)
+            if not p_name in pd:
+                continue
+            p_info = pd[p_name]
+            if not p_info["MIDI"]: continue
+            midi_params[p_info["MIDI"]], oor, one_hot = value2midi(v, p_info["type"], p_info["range"], p_name)
+            if p_info["type"] == "d":
+                self.one_hots[p_name] = one_hot
             if oor:
-                self.oor +=1
+                self.oor += 1
+        self.midi_params = midi_params        
+
+    def set_random(self, use_params, default_params):
+        """
+            set parameters randomly
+        """
+        self.preset = None
+        self.oor = 0        
+        self.one_hots = {}
+        midi_params = default_params.copy()
+        midi_params.update(midi_only[self.synth_name])
+        for p_name, p_info in self.preset_desc.items():
+            if not p_info["MIDI"]: continue
+            if not p_name in use_params: continue
+            if p_info["type"] == "c":
+                midi_params[p_info["MIDI"]] = random.random()
+            elif p_info['type'] == 'd':
+                v_range = p_info["range"]
+                idx = random.randrange(0, len(v_range))
+                midi_params[p_info["MIDI"]] = idx / (len(v_range)-1)
+                self.one_hots[p_name] = np.eye(len(v_range))[idx]
         self.midi_params = midi_params
 
 def value2midi(value, param_type, param_range, name=None):
@@ -65,6 +94,8 @@ def value2midi(value, param_type, param_range, name=None):
     Returns
     ----------
     v: MIDI CC value (0.0-1.0)
+    oor: Bool Out of range or not
+    (one_hot:
     """
     oor = False
     if param_type == "c": # continuous
@@ -73,15 +104,18 @@ def value2midi(value, param_type, param_range, name=None):
         if value < min_v or value > max_v:
             tqdm.write("{0}: {1} not in {2}".format(name, value, param_range))
             oor = True
+            v = min(1, max(0, v))
+        return v, oor, None
     elif param_type == "d": #categorical/discrete
         if value not in param_range:
             tqdm.write("{0}: {1} not in {2}".format(name, value, param_range))
             v = param_range[0] if value < param_range[0] else param_range[-1]
             oor = True
+            one_hot = np.eye(len(param_range))[0] if value < param_range[0] else np.eye(len(param_range))[-1]
         else:
-            v = param_range.index(value) / (len(param_range) - 1)
+            loc = param_range.index(value)
+            v = loc / (len(param_range) - 1)
+            one_hot = np.eye(len(param_range))[loc]
+        return v, oor, one_hot
     else: # ?
-        v = 0.0
-    if v < 0 or v > 1:
-        v = min(1, max(0, v))
-    return v, oor
+        return 0, True, None

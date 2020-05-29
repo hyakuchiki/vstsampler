@@ -43,8 +43,8 @@ class DivaPresetLoader(PresetLoader):
         else:
             # fill in missing data
             param_dict = self.default_params.copy()
-            for key in param_dict:
-                param_dict[key] = params[key] # discarding all parameters not in default
+            for key in params:
+                param_dict[key] = params[key] 
             #TODO: check for out of range values?
         return Preset("Diva", preset_name=os.path.basename(file_path)[:-4], preset_path=file_path, params=param_dict, meta=meta)
 
