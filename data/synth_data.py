@@ -8,7 +8,8 @@ This is a mess
 
 """
 script_dir = os.path.dirname(__file__)
-data_dir = os.path.join(script_dir, "data")
+# data_dir = os.path.join(script_dir, "data")
+data_dir = script_dir
 def get_divah2p_info():
     diva_param_infos={}
     with codecs.open(os.path.join(data_dir,"divaparam.csv"), encoding='utf-8-sig') as f:
