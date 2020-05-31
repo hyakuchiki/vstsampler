@@ -45,12 +45,24 @@ class Synth():
             sets midi_params dictionary with cc names as key
         """
         self.preset = preset
+        self.params_to_midi(preset.params)
+
+    def params_to_midi(self, params):
+        """ From preset parameters, sets and returns midi parameters with cc names as key 
+
+
+        Arguments:
+            params {dict} -- dict of preset parameters
+
+        Returns:
+            dict -- dict of midi parameters
+        """
         self.oor = 0 #no. of out of range params
         midi_params = {}
         pd = self.preset_desc
         self.one_hots = {}
         midi_params.update(midi_only[self.synth_name])
-        for p_name, v in preset.params.items():
+        for p_name, v in params.items():
             if not p_name in pd:
                 continue
             p_info = pd[p_name]
@@ -60,21 +72,25 @@ class Synth():
                 self.one_hots[p_name] = one_hot
             if oor:
                 self.oor += 1
-        self.midi_params = midi_params        
+        self.midi_params = midi_params
+        return midi_params
 
     def set_random(self, use_params, default_params):
-        """
-            set parameters randomly
+        """set synth midi parameters randomly
+
+        Arguments:
+            use_params {list} -- list of parameters to set randomly
+            default_params {dict} -- default values to fall back to
         """
         self.preset = None
         self.oor = 0        
         self.one_hots = {}
-        midi_params = default_params.copy()
+        midi_params = self.params_to_midi(default_params)
         midi_params.update(midi_only[self.synth_name])
         for p_name, p_info in self.preset_desc.items():
             if not p_info["MIDI"]: continue
             if not p_name in use_params: continue
-            if p_info["type"] == "c":
+            if p_info["type"] == "c": # continuousな場合は普通にMIDIそのまま生成してもおｋ
                 midi_params[p_info["MIDI"]] = random.random()
             elif p_info['type'] == 'd':
                 v_range = p_info["range"]
@@ -82,6 +98,29 @@ class Synth():
                 midi_params[p_info["MIDI"]] = idx / (len(v_range)-1)
                 self.one_hots[p_name] = np.eye(len(v_range))[idx]
         self.midi_params = midi_params
+    
+    def gen_random_params(self, use_params, default_params):
+        """generating random preset parameter dicts
+
+        Arguments:
+            use_params {list} -- list of parameters to set randomly
+            default_params {dict} -- default preset values to fall back to
+
+        Returns:
+            params {dict} -- parameter dict of random preset
+        """
+        self.preset = None
+        self.oor = 0        
+        self.one_hots = {}
+        params = default_params.copy()
+        for p_name, p_info in self.preset_desc.items():
+            if not p_name in use_params: continue
+            if p_info["type"] == "c": 
+                params[p_name] = random.randint(*p_info["range"])
+            elif p_info['type'] == 'd':
+                params[p_name] = random.choice(p_info["range"])
+        return params                
+
 
 def value2midi(value, param_type, param_range, name=None):
     """
