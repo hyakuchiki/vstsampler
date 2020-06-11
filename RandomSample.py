@@ -1,8 +1,8 @@
 from __future__ import division
 import argparse, os, shutil, sys, json
-from synth import Synth
-from preset import DX7PresetLoader, PresetFixer
-from util import get_files_ext
+from .synth import Synth
+from .preset import DX7PresetLoader, PresetFixer
+from .util import get_files_ext
 from tqdm import tqdm
 import numpy as np
 import librosa

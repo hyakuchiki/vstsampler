@@ -1,6 +1,6 @@
 from __future__ import division
 import os, csv, ast, codecs
-from util import is_number
+from ..util import is_number
 import re
 
 """

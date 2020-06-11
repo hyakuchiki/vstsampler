@@ -1,7 +1,7 @@
 from __future__ import division
 import hashlib
-from h2p import read_h2p_file
-from dx7 import read_patch
+from .h2p import read_h2p_file
+from .dx7 import read_patch
 import json, os
 import abc
 from copy import deepcopy

@@ -1,8 +1,8 @@
 from __future__ import division
 from tqdm import tqdm
 import numpy as np
-from util import resample
-from data.synth_data import midi_indices, preset_info, midi_only
+from .util import resample
+from .data.synth_data import midi_indices, preset_info, midi_only
 import random
 
 class Synth():
