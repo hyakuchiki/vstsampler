@@ -75,7 +75,7 @@ class Synth():
         self.midi_params = midi_params
         return midi_params
 
-    def set_random(self, use_params, default_params):
+    def set_random(self, use_params, default_params, rng=None):
         """set synth midi parameters randomly
 
         Arguments:
@@ -94,12 +94,15 @@ class Synth():
                 midi_params[p_info["MIDI"]] = random.random()
             elif p_info['type'] == 'd':
                 v_range = p_info["range"]
-                idx = random.randrange(0, len(v_range))
+                if rng:
+                    idx = rng.integers(0, len(v_range))
+                else:
+                    idx = random.randrange(0, len(v_range))
                 midi_params[p_info["MIDI"]] = idx / (len(v_range)-1)
                 self.one_hots[p_name] = np.eye(len(v_range))[idx]
         self.midi_params = midi_params
     
-    def gen_random_params(self, use_params, default_params):
+    def gen_random_params(self, use_params, default_params, rng=None):
         """generating random preset parameter dicts
 
         Arguments:
@@ -113,12 +116,20 @@ class Synth():
         self.oor = 0        
         self.one_hots = {}
         params = default_params.copy()
-        for p_name, p_info in self.preset_desc.items():
-            if not p_name in use_params: continue
-            if p_info["type"] == "c": 
-                params[p_name] = random.randint(*p_info["range"])
-            elif p_info['type'] == 'd':
-                params[p_name] = random.choice(p_info["range"])
+        if rng:
+            for p_name, p_info in self.preset_desc.items():
+                if not p_name in use_params: continue
+                if p_info["type"] == "c": 
+                    params[p_name] = rng.integers(*p_info["range"], endpoint=True)
+                elif p_info['type'] == 'd':
+                    params[p_name] = rng.choice(p_info["range"])
+        else:
+            for p_name, p_info in self.preset_desc.items():
+                if not p_name in use_params: continue
+                if p_info["type"] == "c": 
+                    params[p_name] = random.randint(*p_info["range"])
+                elif p_info['type'] == 'd':
+                    params[p_name] = random.choice(p_info["range"])
         return params                
 
 
