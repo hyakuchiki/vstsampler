@@ -9,6 +9,7 @@ class Synth():
     synth = None
     preset = None
     midi_params = {}
+    init_fxb=None
     
     def __init__(self, synth_name):
         if synth_name in midi_indices.keys():
@@ -24,7 +25,8 @@ class Synth():
         self.engine = rm.RenderEngine(sample_rate, buffer_size, fft_size)
         self.engine.load_plugin(synth_dir)
         if init_fxb:
-            self.engine.load_preset(init_fxb)
+            self.init_fxb = init_fxb
+            self.engine.load_preset(self.init_fxb)
         self.sample_rate = sample_rate
 
     def play_note(self, pitch, velocity, note_length=3.8, render_length=4.0, output_rate=22050):
@@ -33,6 +35,8 @@ class Synth():
         and plays a midi note
         """
         midi_cc = [(self.midi_idx[pn], v) for pn, v in self.midi_params.items()]
+        if self.init_fxb:
+            self.engine.load_preset(self.init_fxb) # set init patch to avoid bug
         self.engine.set_patch(midi_cc)
         # self.engine.render_patch(pitch, 0, 0.5, 1.0, True) # render a really quiet sound to remove blip
         self.engine.render_patch(pitch, velocity, note_length, render_length, True)
