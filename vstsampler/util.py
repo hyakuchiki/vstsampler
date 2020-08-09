@@ -18,10 +18,10 @@ def get_files_ext(top_dir, extension):
                 presets_dirs.append(os.path.join(root,filename))
     return presets_dirs
 
-def resample(y, orig_sr, target_sr, dtype=np.float16):
+def resample(y, orig_sr, target_sr):
     if orig_sr == target_sr:
         return y
     ratio = float(target_sr) / orig_sr
     n_samples = int(np.ceil(y.shape[-1] * ratio))
     y_hat = scipy.signal.resample(y, n_samples, axis=-1)
-    return np.ascontiguousarray(y_hat, dtype=dtype)
+    return np.ascontiguousarray(y_hat)

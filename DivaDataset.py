@@ -1,8 +1,8 @@
 from __future__ import division
 import argparse, os, shutil, sys
-from .synth import Synth
-from .preset import DivaPresetLoader, PresetFixer
-from .util import get_files_ext
+from vstsampler.synth import Synth
+from vstsampler.preset import DivaPresetLoader, PresetFixer
+from vstsampler.util import get_files_ext
 from tqdm import tqdm
 import numpy as np
 import librosa

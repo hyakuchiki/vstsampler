@@ -1,8 +1,8 @@
 from __future__ import division
 from tqdm import tqdm
 import numpy as np
-from vstsampler.util import resample
-from vstsampler.data.synth_data import midi_indices, preset_info, midi_only
+from .util import resample
+from .synth_data import midi_indices, preset_info, midi_only
 import random
 
 class Synth():
@@ -29,7 +29,7 @@ class Synth():
             self.engine.load_preset(self.init_fxb)
         self.sample_rate = sample_rate
 
-    def play_note(self, pitch, velocity, note_length=3.8, render_length=4.0, output_rate=22050, dtype=np.float16):
+    def play_note(self, pitch, velocity, note_length=3.8, render_length=4.0, output_rate=22050):
         """
         makes midi-cc ex.) [(0,0.3), (1,0.8),...] for renderman to use
         and plays a midi note
@@ -41,7 +41,7 @@ class Synth():
         # self.engine.render_patch(pitch, 0, 0.5, 1.0, True) # render a really quiet sound to remove blip
         self.engine.render_patch(pitch, velocity, note_length, render_length, True)
         audio = np.array(self.engine.get_audio_frames())
-        return resample(audio, self.sample_rate, output_rate, dtype=dtype)
+        return resample(audio, self.sample_rate, output_rate)
     
     def preset_to_midi(self, preset):
         """

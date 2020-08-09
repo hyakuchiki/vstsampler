@@ -68,9 +68,9 @@ if __name__ == '__main__':
         preset_count += 1
         for pitch in args.p:
             for velocity in args.v:
-                audio = diva.play_note(pitch, velocity, 3.0, 4.0, output_rate=args.sr, dtype=np.int16)
+                audio = diva.play_note(pitch, velocity, 3.0, 4.0, output_rate=args.sr)
                 out_name = preset.hash + "_" + str(pitch) + "_" + str(velocity) + '.wav'
-                soundfile.write(os.path.join(audio_dir, out_name), audio, args.sr)
+                soundfile.write(os.path.join(audio_dir, out_name), audio, args.sr) # PCM_16
                 
 
     print('played {0} out of {1} presets'.format(preset_count, len(preset_files)))
